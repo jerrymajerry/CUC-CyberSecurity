@@ -1,2 +1,0 @@
-# CUC-CyberSecurity
-homework
