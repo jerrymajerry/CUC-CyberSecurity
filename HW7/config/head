@@ -1,0 +1,4 @@
+# run "systemd-resolve --status" to see details about the actual nameservers.
+
+search cuc.edu.cn
+nameserver 10.211.55.12

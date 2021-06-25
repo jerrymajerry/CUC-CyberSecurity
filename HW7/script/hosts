@@ -1,0 +1,11 @@
+[ssh-copy-id]
+cuc-svr2 ansible_ssh_host=10.211.55.12 ansible_ssh_user=cuc-svr2 ansible_ssh_port=22 ansible_become_pass="{{ become_pass }}" ansible_ssh_pass="{{ become_pass }}"
+
+[debian]
+debian-www
+
+[ubuntu]
+ubuntu-www
+
+[centos]
+centos-www

@@ -1,0 +1,54 @@
+---
+- hosts: ssh-copy-id
+  gather_facts: yes
+  tasks:
+  - name: install NFS common 
+    apt: 
+        update_cache: yes
+        cache_valid_time: 3600
+        name: "nfs-common"
+        state: present
+    become: true
+    become_user: root
+    become_method: sudo    
+
+  - name: Create mountable dir general_r
+    file: 
+      path: /nfs/general_r
+      state: directory 
+      mode: ‘0744’ 
+    become: true
+    become_user: root
+    become_method: sudo
+
+  - name: Create mountable dir general_rw
+    file: 
+      path: /nfs/general_rw
+      state: directory 
+      mode: ‘0766’ 
+    become: true
+    become_user: root
+    become_method: sudo
+    
+  - name: set mountpoints general_r
+    mount:
+      path: /nfs/general_r
+      src: 10.211.55.12:/nfs/general_r
+      fstype: nfs 
+      opts: defaults
+      state: mounted
+    become: true
+    become_user: root
+    become_method: sudo
+
+  - name: set mountpoints general_rw
+    mount:
+      path: /nfs/general_rw
+      src: 10.211.55.12:/nfs/general_rw
+      fstype: nfs 
+      opts: defaults
+      state: mounted
+    become: true
+    become_user: root
+    become_method: sudo
+
