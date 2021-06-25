@@ -1,0 +1,41 @@
+---
+- hosts: ssh-copy-id
+  gather_facts: yes
+  tasks:
+  - name: install resolvconf
+    apt:
+        update_cache: yes
+        cache_valid_time: 3600
+        name: "resolvconf"
+        state: present
+    become: true
+    become_user: root
+    become_method: sudo
+
+  - name: copy head 
+    copy: 
+        src: /etc/resolvconf/resolv.conf.d/head 
+        dest: /etc/resolvconf/resolv.conf.d/head.bak
+        remote_src: true
+    become: true
+    become_user: root
+    become_method: sudo
+
+  - name: add to head -1
+    lineinfile:
+      state: present
+      line: 'search cuc.edu.cn'
+      dest: '/etc/resolvconf/resolv.conf.d/head'
+    become: true
+    become_user: root
+    become_method: sudo
+
+  - name: add to head -2
+    lineinfile:
+      state: present
+      line: 'nameserver 10.211.55.12'
+      dest: '/etc/resolvconf/resolv.conf.d/head'
+    become: true
+    become_user: root
+    become_method: sudo
+

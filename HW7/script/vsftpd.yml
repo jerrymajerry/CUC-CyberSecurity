@@ -1,0 +1,248 @@
+---
+- hosts: ssh-copy-id
+  gather_facts: yes
+  tasks:
+  - name: install vsftpd
+    apt:
+        update_cache: yes
+        cache_valid_time: 3600
+        name: "vsftpd"
+        state: present
+    become: true
+    become_user: root
+    become_method: su
+
+  - name: copy vsftpd.conf
+    copy: src=/etc/vsftpd.conf dest=/etc/vsftpd.conf.bak
+    become: true
+    become_user: root
+    become_method: su
+
+  - name: Create anonymous directory if it does not exist
+    file:
+      path: /var/ftp/anonymous
+      state: directory
+      mode: '0755'
+    become: true
+    become_user: root
+    become_method: su
+
+  - name: change vsftpd.conf:anonymous_enable
+    lineinfile:
+      state: present
+      regexp: '^anonymous_enable=NO'
+      line: 'anonymous_enable=YES'
+      dest: '/etc/vsftpd.conf'
+      backrefs: yes
+    become: true
+    become_user: root
+    become_method: su
+
+  - name: change vsftpd.conf:anon_upload_enable
+    lineinfile:
+      state: present
+      regexp: '^#anon_upload_enable=YES'
+      line: 'anon_upload_enable=NO'
+      dest: '/etc/vsftpd.conf'
+      backrefs: yes
+    become: true
+    become_user: root
+    become_method: su
+
+  - name: change vsftpd.conf:anon_mkdir_write_enable
+    lineinfile:
+      state: present
+      regexp: '^#anon_mkdir_write_enable=YES'
+      line: 'anon_mkdir_write_enable=NO'
+      dest: '/etc/vsftpd.conf'
+      backrefs: yes
+    become: true
+    become_user: root
+    become_method: su
+
+  - name: change vsftpd.conf:chroot_local_user
+    lineinfile:
+      state: present
+      regexp: '^#chroot_local_user=NO'
+      line: 'chroot_local_user=YES'
+      dest: '/etc/vsftpd.conf'
+      backrefs: yes
+    become: true
+    become_user: root
+    become_method: su
+
+  - name: change vsftpd.conf:local_enable
+    lineinfile:
+      state: present
+      regexp: '^local_enable=NO'
+      line: 'local_enable=YES'
+      dest: '/etc/vsftpd.conf'
+      backrefs: yes
+    become: true
+    become_user: root
+    become_method: su
+
+  - name: change vsftpd.conf:write_enable
+    lineinfile:
+      state: present
+      regexp: '^#write_enable=NO'
+      line: 'write_enable=YES'
+      dest: '/etc/vsftpd.conf'
+      backrefs: yes
+    become: true
+    become_user: root
+    become_method: su
+
+  - name: create user
+    user:
+        name: sammy
+        password: 123456
+        home: /home/sammy
+        state: present
+    become: true
+    become_user: root
+    become_method: su
+
+  - name: Create sammy directory if it does not exist
+    file:
+      path: /home/sammy/ftp
+      state: directory
+      mode: '0444'
+    become: true
+    become_user: root
+    become_method: su
+
+  - name: create userlist file
+    file:
+      path: /etc/vsftpd.userlist
+      state: touch
+      mode: '0755'
+    become: true
+    become_user: root
+    become_method: su
+      
+  - name: add sammy and anonymous to userlist file
+    lineinfile:
+      state: present
+      line: 'sammy'
+      dest: '/etc/vsftpd.userlist'
+    become: true
+    become_user: root
+    become_method: su
+
+  - name: add sammy and anonymous to userlist file
+    lineinfile:
+      state: present
+      line: 'anonymous'
+      dest: '/etc/vsftpd.userlist'
+    become: true
+    become_user: root
+    become_method: su
+
+  - name: add pasv_min_port to vsftpd.conf
+    lineinfile:
+      state: present
+      line: 'pasv_min_port=40000'
+      dest: '/etc/vsftpd.conf'
+    become: true
+    become_user: root
+    become_method: su
+
+  - name: add pasv_max_port to vsftpd.conf
+    lineinfile:
+      state: present
+      line: 'pasv_max_port=50000'
+      dest: '/etc/vsftpd.conf'
+    become: true
+    become_user: root
+    become_method: su
+
+  - name: add userlist_file to vsftpd.conf
+    lineinfile:
+      state: present
+      line: 'userlist_file=/etc/vsftpd.userlist'
+      dest: '/etc/vsftpd.conf'
+    become: true
+    become_user: root
+    become_method: su
+
+  - name: add userlist_enable to vsftpd.conf
+    lineinfile:
+      state: present
+      line: 'userlist_enable=YES'
+      dest: '/etc/vsftpd.conf'
+    become: true
+    become_user: root
+    become_method: su
+
+  - name: add userlist_deny to vsftpd.conf
+    lineinfile:
+      state: present
+      line: 'userlist_deny=NO'
+      dest: '/etc/vsftpd.conf'
+    become: true
+    become_user: root
+    become_method: su
+
+  - name: add tcp_wrappers to vsftpd.conf
+    lineinfile:
+      state: present
+      line: 'tcp_wrappers=YES'
+      dest: '/etc/vsftpd.conf'
+    become: true
+    become_user: root
+    become_method: su   
+
+
+  - name: add anon_root to vsftpd.conf
+    lineinfile:
+      state: present
+      line: 'anon_root=/var/ftp/'
+      dest: '/etc/vsftpd.conf'
+    become: true
+    become_user: root
+    become_method: su
+
+  - name: add no_anon_password to vsftpd.conf
+    lineinfile:
+      state: present
+      line: 'no_anon_password=YES'
+      dest: '/etc/vsftpd.conf'
+    become: true
+    become_user: root
+    become_method: su
+
+  - name: add hide_ids to vsftpd.conf
+    lineinfile:
+      state: present
+      line: 'hide_ids=YES'
+      dest: '/etc/vsftpd.conf'
+    become: true
+    become_user: root
+    become_method: su
+
+  - name: change hosts.deny file
+    lineinfile:
+      state: present
+      line: 'vsftpd: ALL'
+      dest: '/etc/hosts.deny'
+    become: true
+    become_user: root
+    become_method: su
+
+  - name: change hosts.deny file
+    lineinfile:
+      state: present
+      line: 'vsftpd:10.211.55.6'
+      dest: '/etc/hosts.deny'
+    become: true
+    become_user: root
+    become_method: su
+
+  - name: restart vsftpd server
+    service: 
+      name: vsftpd 
+      state: restarted
+    become: true
+    become_user: root
+    become_method: su

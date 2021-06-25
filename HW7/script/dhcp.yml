@@ -1,0 +1,97 @@
+---
+- hosts: ssh-copy-id
+  gather_facts: yes
+  tasks:
+  - name: install isc-dhcp-server
+    apt:
+        update_cache: yes
+        cache_valid_time: 3600
+        name: "isc-dhcp-server"
+        state: present
+    become: true
+    become_user: root
+    become_method: su
+
+  - name: copy dhcpd.conf 
+    copy: src=/etc/dhcp/dhcpd.conf dest=/etc/dhcp/dhcpd.conf.bak remote_src=true
+    become: true
+    become_user: root
+    become_method: su
+
+  - name: copy isc-dhcp-server 
+    copy: src=/etc/default/isc-dhcp-server dest=/etc/default/isc-dhcp-server.bak remote_src=true
+    become: true
+    become_user: root
+    become_method: su
+
+  - name: copy 01-netcfg.yaml 
+    copy: src=/etc/netplan/01-netcfg.yaml dest=/etc/netplan/01-netcfg.yaml.bak remote_src=true
+    become: true
+    become_user: root
+    become_method: su
+
+  - name: add to dhcpd.conf
+    lineinfile:
+      state: present
+      line: 'subnet 192.168.1.0 netmask 255.255.255.0 {range 192.168.1.10 192.168.1.100;default-lease-time 600;max-lease-time 7200;}'
+      dest: '/etc/dhcp/dhcpd.conf'
+    become: true
+    become_user: root
+    become_method: su
+
+  - name: add to 01-netcfg.yaml -1
+    lineinfile:
+      state: present
+      line: 'enp0s9:'
+      dest: '/etc/netplan/01-netcfg.yaml'
+    become: true
+    become_user: root
+    become_method: su
+
+  - name: add to 01-netcfg.yaml -2
+    lineinfile:
+      state: present
+      line: '  dhcp4: no'
+      dest: '/etc/netplan/01-netcfg.yaml'
+    become: true
+    become_user: root
+    become_method: su
+
+  - name: add to 01-netcfg.yaml -3
+    lineinfile:
+      state: present
+      line: '  addresses: [192.168.203.1/24]'
+      dest: '/etc/netplan/01-netcfg.yaml'
+    become: true
+    become_user: root
+    become_method: su
+
+  - name: change isc-dhcp-server:INTERFACESv4
+    lineinfile:
+      state: present
+      regexp: 'INTERFACESv4=/s/^[#]/'
+      line: 'INTERFACESv4="enp0s9"'
+      dest: '/etc/default/isc-dhcp-server'
+      backrefs: yes
+    become: true
+    become_user: root
+    become_method: su
+
+  - name: change isc-dhcp-server:INTERFACESv6
+    lineinfile:
+      state: present
+      regexp: 'INTERFACESv4=/s/^[#]/'
+      line: 'INTERFACESv6="enp0s9"'
+      dest: '/etc/default/isc-dhcp-server'
+      backrefs: yes
+    become: true
+    become_user: root
+    become_method: su
+
+  - name: restart isc-dhcp-server server
+    service: 
+      name: isc-dhcp-server
+      state: restarted
+    become: true
+    become_user: root
+    become_method: su
